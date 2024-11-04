@@ -1,4 +1,4 @@
-# mobilekampus
+# Mobile Application dengan menggunakan Flutter
 
 A new Flutter project.
 
