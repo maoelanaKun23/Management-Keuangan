@@ -13,15 +13,12 @@ class Home extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Menampilkan SVG (assuming your SVG image is named 'home.svg')
               SvgPicture.asset(
                 'assets/images/home.svg',
-                height: 400, // Adjust the height as needed
+                height: 400,
                 width: MediaQuery.of(context).size.width,
               ),
-              const SizedBox(height: 20), // Spacing between SVG and text
-
-              // Text elements
+              const SizedBox(height: 20),
               const Text(
                 'Making your life easier',
                 style: TextStyle(
@@ -41,16 +38,15 @@ class Home extends StatelessWidget {
               ),
               SizedBox(height: 30),
 
-              // Button with rounded corners
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, AppRoutes.login);
                 },
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: const Color(0xFF2499C0), // Button text color
-                  backgroundColor: Colors.white, // Button background color
+                  foregroundColor: const Color(0xFF2499C0), 
+                  backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20), // Add rounded corners
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                 ),

@@ -115,7 +115,6 @@ class _NavigationExampleState extends State<NavigationExample> {
             ],
           ),
         ),
-        // Halaman Messages
         ListView.builder(
           reverse: true,
           itemCount: 2,

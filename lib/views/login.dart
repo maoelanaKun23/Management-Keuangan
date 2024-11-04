@@ -14,15 +14,15 @@ class Login extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             child: Container(
-              height: 400, // Set the desired height of the Card
+              height: 400,
               child: Card(
-                elevation: 4, // Shadow depth
+                elevation: 4,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Rounded corners
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Padding(
                   padding:
-                      const EdgeInsets.all(16.0), // Padding inside the card
+                      const EdgeInsets.all(16.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -31,7 +31,7 @@ class Login extends StatelessWidget {
                         'assets/images/CuanM.png',
                         height: 100,
                         width: 100,
-                        fit: BoxFit.cover, // atau BoxFit.contain
+                        fit: BoxFit.cover,
                       ),
                       TextField(
                         controller: _usernameController,
@@ -47,11 +47,10 @@ class Login extends StatelessWidget {
                           labelText: 'Password',
                           border: OutlineInputBorder(),
                         ),
-                        obscureText: true, // Hide password input
+                        obscureText: true, 
                       ),
-                      SizedBox(height: 30), // Spacing between fields
+                      SizedBox(height: 30),
 
-                      // Login button
                       Container(
                         width: 200,
                         child: ElevatedButton(

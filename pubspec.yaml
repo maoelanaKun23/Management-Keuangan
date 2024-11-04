@@ -24,6 +24,7 @@ flutter:
 
   assets:
     - assets/images/home.svg 
+    - assets/images/foto.png
     - assets/images/CuanM.png
     - assets/icons/artikelactive.svg
     - assets/icons/artikelnonactive.svg

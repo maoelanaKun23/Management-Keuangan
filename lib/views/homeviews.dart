@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
+import '../component/modallogout.dart';
 
 class Homeviews extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -39,25 +40,139 @@ class Homeviews extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(
-                          'assets/images/CuanM.png',
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
+                        ClipOval(
+                          child: Image.asset(
+                            'assets/images/foto.png',
+                            height: 150,
+                            width: 150,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         Container(
                           width: 200,
-                          child: const Column(
+                          margin: const EdgeInsets.only(top: 60.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Selamat Datang!',
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.person,
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Username :',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Text(
+                                'Yusuf Maulana',
                                 style: TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF2499C0),
+                                  color: Color.fromARGB(255, 0, 0, 0),
                                 ),
                               ),
-                              
+                              const SizedBox(height: 22),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.male,
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Gender :',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Text(
+                                'Male',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ),
+                              const SizedBox(height: 22),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.phone,
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Phone :',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Text(
+                                '081314156789',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ),
+                              const SizedBox(height: 22),
+                              Container(
+                                width: 200,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: const Color(0xFF2499C0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 30),
+                                  ),
+                                  onPressed: () {
+                                    showDialog<String>(
+                                      context: context,
+                                      builder: (BuildContext context) => AlertDialog(
+                                        title: const Text('Confirm Logout'),
+                                        content: const Text('Are you sure you want to logout?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context),
+                                            child: const Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.pushNamed(context, AppRoutes.login);
+                                            },
+                                            child: const Text('Logout'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Logout',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
