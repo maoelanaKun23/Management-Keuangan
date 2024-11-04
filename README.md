@@ -5,6 +5,8 @@ A new Flutter project.
 ## Getting Started
 
 This project is a starting point for a Flutter application.
+Flutter 3.24.3
+Dart 3.5.3
 
 A few resources to get you started if this is your first Flutter project:
 
