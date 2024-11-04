@@ -21,8 +21,7 @@ class Login extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -47,10 +46,9 @@ class Login extends StatelessWidget {
                           labelText: 'Password',
                           border: OutlineInputBorder(),
                         ),
-                        obscureText: true, 
+                        obscureText: true,
                       ),
                       SizedBox(height: 30),
-
                       Container(
                         width: 200,
                         child: ElevatedButton(
@@ -66,7 +64,14 @@ class Login extends StatelessWidget {
                           onPressed: () {
                             if (_usernameController.text.isNotEmpty &&
                                 _passwordController.text.isNotEmpty) {
-                              Navigator.pushNamed(context, AppRoutes.mainhome);
+                              showLoadingDialog(context);
+                              // Navigator.pushNamed(context, AppRoutes.mainhome);
+                              Navigator.of(context)
+                                  .pushNamed(AppRoutes.mainhome)
+                                  .then((_) {
+                                Navigator.of(context)
+                                    .pop();
+                              });
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

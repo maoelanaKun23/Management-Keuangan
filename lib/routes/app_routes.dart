@@ -9,15 +9,48 @@ class AppRoutes {
   static const String mainhome = '/mainhome';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
+    Widget page;
     switch (settings.name) {
       case home:
-        return MaterialPageRoute(builder: (_) => Home());
+        page = Home();
+        break;
       case login:
-        return MaterialPageRoute(builder: (_) => Login());
+        page = Login();
+        break;
       case mainhome:
-        return MaterialPageRoute(builder: (_) => const NavigationExample()); 
+        page = const NavigationExample();
+        break;
       default:
-        return MaterialPageRoute(builder: (_) => Home()); // Halaman default
+        page = Home(); // Halaman default
     }
+    return _createRouteWithLoading(page);
   }
+
+  // Fungsi untuk membuat route dengan animasi dan loading
+  static PageRouteBuilder _createRouteWithLoading(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+      transitionDuration: Duration(milliseconds: 1000),
+      fullscreenDialog: true, // Untuk menunjukkan halaman sebagai dialog penuh
+    );
+  }
+}
+
+// Fungsi untuk menunjukkan dialog loading
+void showLoadingDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    },
+  );
 }
