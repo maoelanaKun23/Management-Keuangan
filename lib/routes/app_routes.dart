@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import '../views/home.dart';
 import '../views/login.dart';
 import '../views/mainhome.dart';
+import '../views/home_page.dart';
 
 class AppRoutes {
   static const String home = '/';
   static const String login = '/login';
   static const String mainhome = '/mainhome';
-
+  static const String homepage = '/homepage';
   static Route<dynamic> generateRoute(RouteSettings settings) {
     Widget page;
     switch (settings.name) {
@@ -19,6 +20,9 @@ class AppRoutes {
         break;
       case mainhome:
         page = const NavigationExample();
+        break;
+      case homepage:
+        page = HomePage();
         break;
       default:
         page = Home(); // Halaman default

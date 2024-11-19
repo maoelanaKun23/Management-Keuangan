@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../views/homeviews.dart';
+import '../views/home_page.dart';
+import '../views/statistic.dart';
 
 class NavigationExample extends StatefulWidget {
   const NavigationExample({super.key});
@@ -22,7 +24,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             currentPageIndex = index;
           });
         },
-        // indicatorColor: const Color(0xFF2499C0),
+        indicatorColor: Colors.transparent,
         selectedIndex: currentPageIndex,
         destinations: <Widget>[
           NavigationDestination(
@@ -82,39 +84,13 @@ class _NavigationExampleState extends State<NavigationExample> {
       body: <Widget>[
         // Halaman Home
         Card(
-          shadowColor: Colors.transparent,
-          margin: const EdgeInsets.all(8.0),
-          child: SizedBox.expand(
-            child: Center(
-              child: Text(
-                'Home page',
-                style: theme.textTheme.titleLarge,
-              ),
-            ),
-          ),
-        ),
-        // Halaman Notifications
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            children: <Widget>[
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 1'),
-                  subtitle: Text('This is a notification'),
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 2'),
-                  subtitle: Text('This is a notification'),
-                ),
-              ),
-            ],
-          ),
-        ),
+            shadowColor: Colors.transparent,
+            margin: const EdgeInsets.all(0.0),
+            child: HomePage()),
+        Card(
+            shadowColor: Colors.transparent,
+            margin: const EdgeInsets.all(0.0),
+            child: TransactionPage()),
         ListView.builder(
           reverse: true,
           itemCount: 2,
