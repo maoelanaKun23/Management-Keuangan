@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'chart_home.dart';
+import '../models/dummyIncome.dart';
+import '../models/dummyExpense.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,23 +24,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isIncomeSelected = true;
-  double totalBalance = 90000;
-  double totalIncome = 7000;
-  double totalExpense = 472;
+  int totalBalance = 90000;
+  int totalIncome = 7000;
+  int totalExpense = 472;
 
-  List<Map<String, dynamic>> incomeTransactions = [
-    {'title': 'Kedai Kopi', 'date': 'March 13, 2024', 'amount': 2000.0},
-    {'title': 'Freelance Web Dev', 'date': 'March 6, 2024', 'amount': 1000.0},
-    {'title': 'Zeus Motorworks', 'date': 'March 2, 2024', 'amount': 4000.0},
-  ];
+  List<Map<String, dynamic>> incomeTransactions = dummyIncome;
+  List<Map<String, dynamic>> expenseTransactions = dummyExpense;
 
-  List<Map<String, dynamic>> expenseTransactions = [
-    {'title': 'Boarding House', 'date': 'March 10, 2024', 'amount': 200.0},
-    {'title': 'Netflix', 'date': 'March 7, 2024', 'amount': 12.0},
-    {'title': 'Consumption', 'date': 'March 3, 2024', 'amount': 250.0},
-  ];
+  String formatRupiah(int amount) {
+    final formatter =
+        NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
+    return formatter.format(amount);
+  }
 
-  void addTransaction(String title, double amount, bool isIncome) {
+  void addTransaction(String title, int amount, bool isIncome) {
     setState(() {
       if (isIncome) {
         incomeTransactions.add({
@@ -83,10 +83,8 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
-          // Stack untuk menempatkan komponen keluar dari container
           Stack(
             children: [
-              // Widget di bawah (misalnya, kontainer utama)
               Container(
                 width: MediaQuery.of(context).size.width * 1,
                 height: 170,
@@ -99,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     Text(
-                      '\$${totalBalance.toStringAsFixed(2)}',
+                      formatRupiah(totalBalance),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 32,
@@ -117,11 +115,9 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-
               Positioned(
                 top: 100,
-                left: MediaQuery.of(context).size.width *
-                    0.25, // Tengah-tengah secara horizontal
+                left: MediaQuery.of(context).size.width * 0.25,
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.50,
                   height: 50,
@@ -177,8 +173,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-
-          // Monthly Chart
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
@@ -207,7 +201,9 @@ class _HomePageState extends State<HomePage> {
                     margin: EdgeInsets.symmetric(horizontal: 16),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '\$${isIncomeSelected ? totalIncome.toStringAsFixed(2) : totalExpense.toStringAsFixed(2)}',
+                      formatRupiah(isIncomeSelected
+                          ? totalIncome
+                          : totalExpense),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -220,8 +216,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
-          // Recent Transactions List
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
@@ -233,7 +227,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -254,7 +247,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          addTransaction('New Transaction', 100.0, isIncomeSelected);
+          addTransaction('New Transaction', 100, isIncomeSelected);
         },
         backgroundColor: isIncomeSelected ? Colors.green : Colors.red,
         child: Icon(Icons.add),
@@ -263,7 +256,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget recentTransactionItem(
-      String title, String date, double amount, bool isIncome) {
+      String title, String date, int amount, bool isIncome) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
@@ -277,7 +270,7 @@ class _HomePageState extends State<HomePage> {
         title: Text(title),
         subtitle: Text(date),
         trailing: Text(
-          '\$${amount.toStringAsFixed(2)}',
+          formatRupiah(amount),
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: isIncome ? Colors.green : Colors.red,

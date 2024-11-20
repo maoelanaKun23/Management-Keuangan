@@ -42,25 +42,30 @@ class _ArtikelPageState extends State<ArtikelPage> {
       body: ListView.builder(
         itemCount: artikelList.length,
         itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(
-                  artikelList[index].judulArtikel ?? "Artikel Tidak Diketahui"),
-              subtitle: Text(
-                artikelList[index].contentArtikel ?? "",
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ArtikelDetail(
-                      artikel: artikelList[index],
+          return SizedBox(
+            height: 120,
+            child: Card(
+              child: ListTile(
+                title: Text(
+                  artikelList[index].judulArtikel ?? "Artikel Tidak Diketahui",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  artikelList[index].contentArtikel ?? "",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ArtikelDetail(
+                        artikel: artikelList[index],
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           );
         },

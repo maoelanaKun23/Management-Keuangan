@@ -21,6 +21,6 @@ List<Map<String, dynamic>> dummyArtikel = [
   {
     "id": "3",
     "judulArtikel": "Learn Assets Management",
-    "contentArtikel": "Detail Laern Assets Management"
+    "contentArtikel": "Detail Learn Assets Management"
   },
 ];

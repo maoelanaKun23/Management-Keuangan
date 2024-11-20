@@ -7,7 +7,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xFF2499C0), // Using a blue color
+        color: Color(0xFF2499C0),
         padding: EdgeInsets.all(16.0),
         child: Center(
           child: Column(
