@@ -25,11 +25,27 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isIncomeSelected = true;
   int totalBalance = 90000;
-  int totalIncome = 7000;
-  int totalExpense = 472;
+  int totalIncome = 0;
+  int totalExpense = 0;
 
   List<Map<String, dynamic>> incomeTransactions = dummyIncome;
   List<Map<String, dynamic>> expenseTransactions = dummyExpense;
+
+  @override
+  void initState() {
+    super.initState();
+    calculateTotals();
+  }
+
+  void calculateTotals() {
+    setState(() {
+      totalIncome = incomeTransactions.fold(
+          0, (sum, item) => sum + (item['amount'] as int));
+      totalExpense = expenseTransactions.fold(
+          0, (sum, item) => sum + (item['amount'] as int));
+      totalBalance = totalIncome - totalExpense;
+    });
+  }
 
   String formatRupiah(int amount) {
     final formatter =
@@ -42,7 +58,7 @@ class _HomePageState extends State<HomePage> {
       if (isIncome) {
         incomeTransactions.add({
           'title': title,
-          'date': 'March 15, 2024',
+          'date': DateFormat('MMMM d, yyyy').format(DateTime.now()),
           'amount': amount,
         });
         totalIncome += amount;
@@ -50,7 +66,7 @@ class _HomePageState extends State<HomePage> {
       } else {
         expenseTransactions.add({
           'title': title,
-          'date': 'March 15, 2024',
+          'date': DateFormat('MMMM d, yyyy').format(DateTime.now()),
           'amount': amount,
         });
         totalExpense += amount;
@@ -86,7 +102,7 @@ class _HomePageState extends State<HomePage> {
           Stack(
             children: [
               Container(
-                width: MediaQuery.of(context).size.width * 1,
+                width: MediaQuery.of(context).size.width,
                 height: 170,
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(

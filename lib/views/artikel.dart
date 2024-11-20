@@ -9,7 +9,6 @@ class ArtikelPage extends StatefulWidget {
 }
 
 class _ArtikelPageState extends State<ArtikelPage> {
-  // Menggunakan data dari dummyArtikel
   List<Artikel> artikelList = dummyArtikel.map((item) {
     return Artikel(
       id: item['id'],

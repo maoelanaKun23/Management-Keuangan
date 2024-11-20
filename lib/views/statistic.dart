@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
+import 'package:intl/intl.dart';
 import 'chart_statistic.dart';
+import '../models/dummyIncome.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,7 +24,7 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  List<Map<String, dynamic>> transactions = transaction;
+  List<Map<String, dynamic>> transactions = dummyIncome;
   String sortOrder = 'asc'; // Default sort order (ascending)
 
   void sortTransactions() {
@@ -31,6 +33,12 @@ class _TransactionPageState extends State<TransactionPage> {
           ? a['amount'].compareTo(b['amount'])
           : b['amount'].compareTo(a['amount']));
     });
+  }
+
+  String formatRupiah(int amount) {
+    final formatter =
+        NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
+    return formatter.format(amount);
   }
 
   @override
@@ -122,14 +130,14 @@ class _TransactionPageState extends State<TransactionPage> {
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
                       leading: CircleAvatar(
-                        backgroundColor: transaction['iconColor'],
+                        // backgroundColor: transaction['iconColor'],
                         child: Icon(
                           transaction['icon'],
                           color: Colors.white,
                         ),
                       ),
                       title: Text(
-                        transaction['name'],
+                        transaction['title'],
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -137,7 +145,7 @@ class _TransactionPageState extends State<TransactionPage> {
                       ),
                       subtitle: Text(transaction['date']),
                       trailing: Text(
-                        "\$${transaction['amount'].toStringAsFixed(2)}",
+                        "${formatRupiah(transaction['amount'])}",
                         style: TextStyle(
                           color: Colors.green,
                           fontWeight: FontWeight.bold,

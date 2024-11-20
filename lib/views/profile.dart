@@ -134,28 +134,39 @@ class Homeviews extends StatelessWidget {
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     foregroundColor: Colors.white,
-                                    backgroundColor: const Color(0xFF2499C0),
+                                    backgroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
+                                      side: BorderSide(
+                                        color: Color(
+                                            0xFF2499C0), // Warna biru untuk border
+                                        width: 2, // Ketebalan border
+                                      ),
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 15, horizontal: 30),
+                                      vertical: 15,
+                                      horizontal: 30,
+                                    ),
                                   ),
                                   onPressed: () {
                                     showDialog<String>(
                                       context: context,
-                                      builder: (BuildContext context) => AlertDialog(
+                                      builder: (BuildContext context) =>
+                                          AlertDialog(
                                         title: const Text('Confirm Logout'),
-                                        content: const Text('Are you sure you want to logout?'),
+                                        content: const Text(
+                                            'Are you sure you want to logout?'),
                                         actions: <Widget>[
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
                                             child: const Text('Cancel'),
                                           ),
                                           TextButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              Navigator.pushNamed(context, AppRoutes.login);
+                                              Navigator.pushNamed(
+                                                  context, AppRoutes.login);
                                             },
                                             child: const Text('Logout'),
                                           ),
@@ -168,7 +179,8 @@ class Homeviews extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      color: Color(
+                                          0xFF2499C0),
                                     ),
                                   ),
                                 ),
