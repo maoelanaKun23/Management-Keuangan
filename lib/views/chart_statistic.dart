@@ -55,25 +55,29 @@ class LineChartSample1State extends State<LineChartSample1> {
         child: Stack(
           children: <Widget>[
             Column(
-              mainAxisAlignment: MainAxisAlignment.center, // Menjaga konten di tengah
-              crossAxisAlignment: CrossAxisAlignment.center, // Menjaga chart tetap terpusat
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const SizedBox(height: 15),
-                const Text(
-                  'Your transaction statistics',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    // letterSpacing: 2,
+                const SizedBox(height: 20),
+                const Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Your transaction statistics',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  textAlign: TextAlign.left,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 15),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6), // Menjaga padding kiri dan kanan
-                    child: Center( // Membuat chart tetap di tengah
+                    padding: const EdgeInsets.fromLTRB(22, 0, 0, 0),
+                    child: Center(
                       child: LineChart(
                         isShowingMainData ? sampleData1 : sampleData2,
                         duration: const Duration(milliseconds: 250),
@@ -91,94 +95,100 @@ class LineChartSample1State extends State<LineChartSample1> {
   }
 
   LineChartData get sampleData1 => LineChartData(
-    lineTouchData: LineTouchData(enabled: true),
-    gridData: const FlGridData(show: false),
-    titlesData: FlTitlesData(
-      bottomTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          getTitlesWidget: bottomTitleWidgets,
-          reservedSize: 32,
+        lineTouchData: LineTouchData(enabled: true),
+        gridData: const FlGridData(show: false),
+        titlesData: FlTitlesData(
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: bottomTitleWidgets,
+              reservedSize: 32,
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: leftTitleWidgets,
+              reservedSize: 40,
+            ),
+          ),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-      ),
-      leftTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          getTitlesWidget: leftTitleWidgets,
-          reservedSize: 40,
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: Colors.blueAccent, width: 2),
         ),
-      ),
-      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    ),
-    borderData: FlBorderData(
-      show: true,
-      border: Border.all(color: Colors.blueAccent, width: 2),
-    ),
-    lineBarsData: [
-      LineChartBarData(
-        isCurved: true,
-        color: Colors.green, // Pemasukan
-        barWidth: 4,
-        isStrokeCapRound: true,
-        belowBarData: BarAreaData(show: false),
-        spots: mapDataToSpots(incomeData),
-      ),
-      LineChartBarData(
-        isCurved: true,
-        color: Colors.red, // Pengeluaran
-        barWidth: 4,
-        isStrokeCapRound: true,
-        belowBarData: BarAreaData(show: false),
-        spots: mapDataToSpots(expenseData),
-      ),
-    ],
-  );
+        lineBarsData: [
+          LineChartBarData(
+            isCurved: true,
+            color: Colors.green, // Pemasukan
+            barWidth: 4,
+            isStrokeCapRound: true,
+            belowBarData: BarAreaData(show: false),
+            spots: mapDataToSpots(incomeData),
+          ),
+          LineChartBarData(
+            isCurved: true,
+            color: Colors.red, // Pengeluaran
+            barWidth: 4,
+            isStrokeCapRound: true,
+            belowBarData: BarAreaData(show: false),
+            spots: mapDataToSpots(expenseData),
+          ),
+        ],
+      );
 
   LineChartData get sampleData2 => LineChartData(
-    lineTouchData: LineTouchData(enabled: false),
-    gridData: const FlGridData(show: false),
-    titlesData: FlTitlesData(
-      bottomTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          getTitlesWidget: bottomTitleWidgets,
-          reservedSize: 32,
+        lineTouchData: LineTouchData(enabled: false),
+        gridData: const FlGridData(show: false),
+        titlesData: FlTitlesData(
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: bottomTitleWidgets,
+              reservedSize: 32,
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: leftTitleWidgets,
+              reservedSize: 40,
+            ),
+          ),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-      ),
-      leftTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          getTitlesWidget: leftTitleWidgets,
-          reservedSize: 40,
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: Colors.redAccent, width: 2),
         ),
-      ),
-      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    ),
-    borderData: FlBorderData(
-      show: true,
-      border: Border.all(color: Colors.redAccent, width: 2),
-    ),
-    lineBarsData: [
-      LineChartBarData(
-        isCurved: true,
-        color: Colors.green.withOpacity(0.5), // Pemasukan dengan transparansi
-        barWidth: 4,
-        isStrokeCapRound: true,
-        belowBarData: BarAreaData(show: false),
-        spots: mapDataToSpots(incomeData),
-      ),
-      LineChartBarData(
-        isCurved: true,
-        color: Colors.red.withOpacity(0.5), // Pengeluaran dengan transparansi
-        barWidth: 4,
-        isStrokeCapRound: true,
-        belowBarData: BarAreaData(show: false),
-        spots: mapDataToSpots(expenseData),
-      ),
-    ],
-  );
+        lineBarsData: [
+          LineChartBarData(
+            isCurved: true,
+            color:
+                Colors.green.withOpacity(0.5), // Pemasukan dengan transparansi
+            barWidth: 4,
+            isStrokeCapRound: true,
+            belowBarData: BarAreaData(show: false),
+            spots: mapDataToSpots(incomeData),
+          ),
+          LineChartBarData(
+            isCurved: true,
+            color:
+                Colors.red.withOpacity(0.5), // Pengeluaran dengan transparansi
+            barWidth: 4,
+            isStrokeCapRound: true,
+            belowBarData: BarAreaData(show: false),
+            spots: mapDataToSpots(expenseData),
+          ),
+        ],
+      );
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
