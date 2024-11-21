@@ -81,7 +81,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 ],
               ),
               child: Center(
-                child: LineChartSample1(),
+                child: BarChartSample(),
               ),
             ),
             SizedBox(height: 16),
