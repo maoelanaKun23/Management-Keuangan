@@ -4,20 +4,11 @@ import 'chart_home.dart';
 import '../models/dummyIncome.dart';
 import '../models/dummyExpense.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomePage(),
-    );
-  }
-}
-
 class HomePage extends StatefulWidget {
+  final Map<String, dynamic> userData;
+
+  const HomePage({super.key, required this.userData});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -83,7 +74,7 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         backgroundColor: Color(0xFF2499C0),
         title: Text(
-          'Hi, Yusuf!',
+          'Hi, ${widget.userData['name']}!',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,

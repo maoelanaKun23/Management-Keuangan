@@ -6,7 +6,9 @@ import '../views/statistic.dart';
 import '../views/artikel.dart';
 
 class NavigationExample extends StatefulWidget {
-  const NavigationExample({super.key});
+  final Map<String, dynamic> userData;
+
+  const NavigationExample({super.key, required this.userData});
 
   @override
   _NavigationExampleState createState() => _NavigationExampleState();
@@ -18,6 +20,7 @@ class _NavigationExampleState extends State<NavigationExample> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -65,7 +68,7 @@ class _NavigationExampleState extends State<NavigationExample> {
               width: 30,
               height: 30,
             ),
-            label: 'Artickel',
+            label: 'Artikel',
           ),
           NavigationDestination(
             selectedIcon: SvgPicture.asset(
@@ -85,23 +88,24 @@ class _NavigationExampleState extends State<NavigationExample> {
       body: <Widget>[
         // Halaman Home
         Card(
-            shadowColor: Colors.transparent,
-            margin: const EdgeInsets.all(0.0),
-            child: HomePage()),
-        Card(
-            shadowColor: Colors.transparent,
-            margin: const EdgeInsets.all(0.0),
-            child: TransactionPage()),
-        Card(
-            shadowColor: Colors.transparent,
-            margin: const EdgeInsets.all(0.0),
-            child: ArtikelPage()),
+          shadowColor: Colors.transparent,
+          margin: const EdgeInsets.all(0.0),
+          child: HomePage(userData: widget.userData),
+        ),
         Card(
           shadowColor: Colors.transparent,
           margin: const EdgeInsets.all(0.0),
-          child: SizedBox.expand(
-            child: Center(child: Homeviews()),
-          ),
+          child: TransactionPage(),
+        ),
+        Card(
+          shadowColor: Colors.transparent,
+          margin: const EdgeInsets.all(0.0),
+          child: ArtikelPage(),
+        ),
+        Card(
+          shadowColor: Colors.transparent,
+          margin: const EdgeInsets.all(0.0),
+          child: Homeviews(),
         ),
       ][currentPageIndex],
     );

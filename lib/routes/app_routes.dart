@@ -19,10 +19,15 @@ class AppRoutes {
         page = Login();
         break;
       case mainhome:
-        page = const NavigationExample();
+        final Map<String, dynamic> userData =
+            settings.arguments as Map<String, dynamic>;
+        page = NavigationExample(
+            userData: userData); // Kirimkan userData ke NavigationExample
         break;
       case homepage:
-        page = HomePage();
+        final Map<String, dynamic> userData =
+            settings.arguments as Map<String, dynamic>;
+        page = HomePage(userData: userData); // Kirimkan userData ke HomePage
         break;
       default:
         page = Home(); // Halaman default
