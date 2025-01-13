@@ -20,30 +20,47 @@ class _LoginState extends State<Login> {
       _isLoading = true;
     });
 
-    final response = await http.post(
-      Uri.parse('http://10.200.200.158:8080/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'email': _usernameController.text,
-        'password': _passwordController.text,
-      }),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('https://6718f6bc7fc4c5ff8f4be207.mockapi.io/api/v1/users'),
+      );
 
-    setState(() {
-      _isLoading = false;
-    });
+      setState(() {
+        _isLoading = false;
+      });
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      if (responseData['message'] == 'Login berhasil') {
-        Navigator.of(context).pushNamed(AppRoutes.mainhome, arguments: responseData['user']);
+      if (response.statusCode == 200) {
+        final List<dynamic> users = json.decode(response.body);
+
+        final user = users.firstWhere(
+          (user) =>
+              user['email'] == _usernameController.text &&
+              user['password'] == _passwordController.text,
+          orElse: () => null,
+        );
+
+        if (user != null) {
+          Navigator.of(context).pushNamed(
+            AppRoutes.mainhome,
+            arguments: user,
+          );
+        } else {
+          _message = 'Invalid email or password.';
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(_message)));
+        }
       } else {
-        _message = 'Login failed. Please check your credentials.';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_message)));
+        _message = 'Error fetching users. Please try again later.';
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(_message)));
       }
-    } else {
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
       _message = 'Error logging in, please try again later.';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(_message)));
     }
   }
 
