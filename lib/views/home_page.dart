@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'chart_home.dart';
-import '../models/dummyIncome.dart';
-import '../models/dummyExpense.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -15,16 +15,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isIncomeSelected = true;
-  int totalBalance = 90000;
+  int totalBalance = 0;
   int totalIncome = 0;
   int totalExpense = 0;
+  late String id;
 
-  List<Map<String, dynamic>> incomeTransactions = dummyIncome;
-  List<Map<String, dynamic>> expenseTransactions = dummyExpense;
+  List<Map<String, dynamic>> incomeTransactions = [];
+  List<Map<String, dynamic>> expenseTransactions = [];
 
   @override
   void initState() {
     super.initState();
+    id = widget.userData['userId'];
+    fetchAndFilterIncomeData();
+    fetchAndFilterExpenseData();
     calculateTotals();
   }
 
@@ -44,25 +48,105 @@ class _HomePageState extends State<HomePage> {
     return formatter.format(amount);
   }
 
+  // Fungsi untuk mengonversi string tanggal ke DateTime
+  DateTime convertStringToDate(String dateString) {
+    try {
+      return DateFormat('MMMM dd, yyyy').parse(dateString);
+    } catch (e) {
+      print("Error parsing date: $e");
+      return DateTime.now(); // Mengembalikan tanggal saat ini jika parsing gagal
+    }
+  }
+
+  // Fetch data untuk income
+  Future<void> fetchAndFilterIncomeData() async {
+    try {
+      final data = await fetchAllIncomeData();
+      List<Map<String, dynamic>> filteredData = [];
+      
+      // Filter berdasarkan userId
+      for (var transaction in data) {
+        if (transaction['userId'] == id) {
+          filteredData.add(transaction);
+        }
+      }
+      
+      setState(() {
+        incomeTransactions = filteredData;
+      });
+    } catch (e) {
+      print("Error fetching and filtering income data: $e");
+    }
+  }
+
+  // Fetch data untuk expense
+  Future<void> fetchAndFilterExpenseData() async {
+    try {
+      final data = await fetchAllExpenseData();
+      List<Map<String, dynamic>> filteredData = [];
+      
+      // Filter berdasarkan userId
+      for (var transaction in data) {
+        if (transaction['userId'] == id) {
+          filteredData.add(transaction);
+        }
+      }
+      
+      setState(() {
+        expenseTransactions = filteredData;
+      });
+    } catch (e) {
+      print("Error fetching and filtering expense data: $e");
+    }
+  }
+
+  // API untuk mengambil data income
+  Future<List<dynamic>> fetchAllIncomeData() async {
+    const url = 'https://6718f6bc7fc4c5ff8f4be207.mockapi.io/api/v1/income';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        print(response.body);
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to load income data');
+      }
+    } catch (e) {
+      throw Exception('Error fetching income: $e');
+    }
+  }
+
+  // API untuk mengambil data expense
+  Future<List<dynamic>> fetchAllExpenseData() async {
+    const url = 'https://6784c7481ec630ca33a595ad.mockapi.io/expense';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        print(response.body);
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to load expense data');
+      }
+    } catch (e) {
+      throw Exception('Error fetching expense: $e');
+    }
+  }
+
+  // Fungsi untuk menambahkan transaksi baru
   void addTransaction(String title, int amount, bool isIncome) {
     setState(() {
+      final newTransaction = {
+        'title': title,
+        'date': DateTime.now().toIso8601String(),
+        'amount': amount,
+        'userId': id,
+      };
       if (isIncome) {
-        incomeTransactions.add({
-          'title': title,
-          'date': DateFormat('MMMM d, yyyy').format(DateTime.now()),
-          'amount': amount,
-        });
-        totalIncome += amount;
-        totalBalance += amount;
+        incomeTransactions.add(newTransaction);
       } else {
-        expenseTransactions.add({
-          'title': title,
-          'date': DateFormat('MMMM d, yyyy').format(DateTime.now()),
-          'amount': amount,
-        });
-        totalExpense += amount;
-        totalBalance -= amount;
+        expenseTransactions.add(newTransaction);
       }
+      calculateTotals();
     });
   }
 
@@ -254,7 +338,16 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          addTransaction('New Transaction', 100, isIncomeSelected);
+          // Trigger modal untuk menambah transaksi
+          showDialog(
+            context: context,
+            builder: (ctx) {
+              return AddTransactionDialog(
+                isIncomeSelected: isIncomeSelected,
+                onAddTransaction: addTransaction,
+              );
+            },
+          );
         },
         backgroundColor: isIncomeSelected ? Colors.green : Colors.red,
         child: Icon(Icons.add),
@@ -262,8 +355,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Convert Unix timestamp to DateTime
   Widget recentTransactionItem(
-      String title, String date, int amount, bool isIncome) {
+      String title, dynamic date, int amount, bool isIncome) {
+
+    // Cek apakah date adalah string atau timestamp
+    DateTime transactionDate;
+    if (date is String) {
+      transactionDate = convertStringToDate(date);  // Mengonversi string menjadi DateTime
+    } else {
+      transactionDate = DateTime.fromMillisecondsSinceEpoch(date); // Jika sudah dalam bentuk timestamp
+    }
+
+    String formattedDate = DateFormat('MMMM d, yyyy').format(transactionDate);
+
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
@@ -275,7 +380,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         title: Text(title),
-        subtitle: Text(date),
+        subtitle: Text(formattedDate),
         trailing: Text(
           formatRupiah(amount),
           style: TextStyle(
@@ -284,6 +389,70 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// Dialog untuk menambah transaksi
+class AddTransactionDialog extends StatefulWidget {
+  final bool isIncomeSelected;
+  final Function(String, int, bool) onAddTransaction;
+
+  const AddTransactionDialog({
+    super.key,
+    required this.isIncomeSelected,
+    required this.onAddTransaction,
+  });
+
+  @override
+  _AddTransactionDialogState createState() => _AddTransactionDialogState();
+}
+
+class _AddTransactionDialogState extends State<AddTransactionDialog> {
+  final _titleController = TextEditingController();
+  final _amountController = TextEditingController();
+
+  void _submit() {
+    final title = _titleController.text;
+    final amount = int.tryParse(_amountController.text);
+
+    if (title.isEmpty || amount == null) {
+      return; // Validasi input
+    }
+
+    widget.onAddTransaction(title, amount, widget.isIncomeSelected);
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Add Transaction'),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _titleController,
+            decoration: InputDecoration(labelText: 'Title'),
+          ),
+          TextField(
+            controller: _amountController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'Amount'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: _submit,
+          child: Text('Add'),
+        ),
+      ],
     );
   }
 }
