@@ -1,8 +1,16 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class LineChartSample2 extends StatefulWidget {
-  const LineChartSample2({super.key});
+  final List<Map<String, dynamic>> incomeTransactions;
+  final List<Map<String, dynamic>> expenseTransactions;
+
+  const LineChartSample2({
+    Key? key,
+    required this.incomeTransactions,
+    required this.expenseTransactions,
+  }) : super(key: key);
 
   @override
   State<LineChartSample2> createState() => _LineChartSample2State();
@@ -24,9 +32,9 @@ class _LineChartSample2State extends State<LineChartSample2> {
           aspectRatio: 1.70,
           child: Padding(
             padding: const EdgeInsets.only(
-              right: 18,
-              left: 12,
-              top: 24,
+              right: 0,
+              left: 30,
+              top: 10,
               bottom: 12,
             ),
             child: LineChart(
@@ -60,102 +68,81 @@ class _LineChartSample2State extends State<LineChartSample2> {
     );
   }
 
-  // Menampilkan judul untuk sumbu X
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 2:
-        text = const Text('MAR', style: style);
-        break;
-      case 5:
-        text = const Text('JUN', style: style);
-        break;
-      case 8:
-        text = const Text('SEP', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
-    }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: text,
-    );
-  }
-
-  // Menampilkan judul untuk sumbu Y
-  Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 15,
-    );
-    String text;
-    switch (value.toInt()) {
-      case 1:
-        text = '10K';
-        break;
-      case 3:
-        text = '30K';
-        break;
-      case 5:
-        text = '50K';
-        break;
-      default:
-        return Container();
-    }
-
-    return Text(text, style: style, textAlign: TextAlign.left);
-  }
-
-  // Data untuk chart utama
   LineChartData mainData() {
+    List<FlSpot> incomeSpots = [];
+    List<FlSpot> expenseSpots = [];
+
+    for (int i = 0; i < widget.incomeTransactions.length; i++) {
+      incomeSpots.add(FlSpot(i.toDouble(), widget.incomeTransactions[i]['amount'].toDouble()));
+    }
+
+    for (int i = 0; i < widget.expenseTransactions.length; i++) {
+      expenseSpots.add(FlSpot(i.toDouble(), widget.expenseTransactions[i]['amount'].toDouble()));
+    }
+
+    final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+
     return LineChartData(
-      gridData: FlGridData(
-        show: false, // Matikan grid lines
-      ),
+      gridData: FlGridData(show: false),
       titlesData: FlTitlesData(
-        show: false, // Matikan judul di sumbu X dan Y
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di kiri
+        ),
+        rightTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di kanan
+        ),
+        topTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di atas
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di bawah
+        ),
       ),
-      borderData: FlBorderData(
-        show: false, // Matikan border
-      ),
+      borderData: FlBorderData(show: false), // Hilangkan border di sekitar grafik
       minX: 0,
-      maxX: 11,
+      maxX: widget.incomeTransactions.length.toDouble(),
       minY: 0,
-      maxY: 6,
+      maxY: 10000000,
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          // tooltipBgColor: Colors.blueAccent.withOpacity(0.7),
+          tooltipRoundedRadius: 8,
+          fitInsideHorizontally: true,
+          fitInsideVertically: true,
+          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+            return touchedSpots.map((spot) {
+              final value = formatter.format(spot.y);
+              return LineTooltipItem(
+                value,
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              );
+            }).toList();
+          },
+        ),
+        handleBuiltInTouches: true,
+      ),
       lineBarsData: [
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 3),
-            FlSpot(2.6, 2),
-            FlSpot(4.9, 5),
-            FlSpot(6.8, 3.1),
-            FlSpot(8, 4),
-            FlSpot(9.5, 3),
-            FlSpot(11, 4),
-          ],
+          spots: incomeSpots,
           isCurved: true,
-          gradient: LinearGradient(
-            colors: gradientColors,
-          ),
+          gradient: LinearGradient(colors: gradientColors),
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
-            show: false, // Matikan titik di setiap spot
-          ),
-          belowBarData: BarAreaData(
-            show: true,
-            gradient: LinearGradient(
-              colors: gradientColors
-                  .map((color) => color.withOpacity(0.3))
-                  .toList(),
-            ),
-          ),
+          dotData: FlDotData(show: true),
+          belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: gradientColors.map((color) => color.withOpacity(0.3)).toList())),
+        ),
+        LineChartBarData(
+          spots: expenseSpots,
+          isCurved: true,
+          gradient: LinearGradient(colors: [Colors.red, Colors.orange]),
+          barWidth: 5,
+          isStrokeCapRound: true,
+          dotData: FlDotData(show: true),
+          belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.red.withOpacity(0.3), Colors.orange.withOpacity(0.3)])),
         ),
       ],
     );
@@ -164,15 +151,9 @@ class _LineChartSample2State extends State<LineChartSample2> {
   LineChartData avgData() {
     return LineChartData(
       lineTouchData: const LineTouchData(enabled: false),
-      gridData: FlGridData(
-        show: false, // Matikan grid lines
-      ),
-      titlesData: FlTitlesData(
-        show: false, // Matikan judul di sumbu X dan Y
-      ),
-      borderData: FlBorderData(
-        show: false, // Matikan border
-      ),
+      gridData: FlGridData(show: false),
+      titlesData: FlTitlesData(show: false),
+      borderData: FlBorderData(show: false),
       minX: 0,
       maxX: 11,
       minY: 0,
@@ -191,27 +172,19 @@ class _LineChartSample2State extends State<LineChartSample2> {
           isCurved: true,
           gradient: LinearGradient(
             colors: [
-              ColorTween(begin: gradientColors[0], end: gradientColors[1])
-                  .lerp(0.2)!,
-              ColorTween(begin: gradientColors[0], end: gradientColors[1])
-                  .lerp(0.2)!,
+              ColorTween(begin: gradientColors[0], end: gradientColors[1]).lerp(0.2)!,
+              ColorTween(begin: gradientColors[0], end: gradientColors[1]).lerp(0.2)!,
             ],
           ),
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
-            show: false, // Matikan titik di setiap spot
-          ),
+          dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
               colors: [
-                ColorTween(begin: gradientColors[0], end: gradientColors[1])
-                    .lerp(0.2)!
-                    .withOpacity(0.1),
-                ColorTween(begin: gradientColors[0], end: gradientColors[1])
-                    .lerp(0.2)!
-                    .withOpacity(0.1),
+                ColorTween(begin: gradientColors[0], end: gradientColors[1]).lerp(0.2)!.withOpacity(0.1),
+                ColorTween(begin: gradientColors[0], end: gradientColors[1]).lerp(0.2)!.withOpacity(0.1),
               ],
             ),
           ),

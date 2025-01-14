@@ -332,7 +332,14 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  Center(child: LineChartSample2()),
+                  Center(
+                    child: LineChartSample2(
+                      incomeTransactions:
+                          incomeTransactions,
+                      expenseTransactions:
+                          expenseTransactions,
+                    ),
+                  ),
                 ],
               ),
             ),
