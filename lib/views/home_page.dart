@@ -48,23 +48,20 @@ class _HomePageState extends State<HomePage> {
     return formatter.format(amount);
   }
 
-  // Fungsi untuk mengonversi string tanggal ke DateTime
   DateTime convertStringToDate(String dateString) {
     try {
       return DateFormat('MMMM dd, yyyy').parse(dateString);
     } catch (e) {
       print("Error parsing date: $e");
-      return DateTime.now(); // Mengembalikan tanggal saat ini jika parsing gagal
+      return DateTime.now();
     }
   }
 
-  // Fetch data untuk income
   Future<void> fetchAndFilterIncomeData() async {
     try {
       final data = await fetchAllIncomeData();
       List<Map<String, dynamic>> filteredData = [];
       
-      // Filter berdasarkan userId
       for (var transaction in data) {
         if (transaction['userId'] == id) {
           filteredData.add(transaction);
@@ -79,13 +76,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Fetch data untuk expense
   Future<void> fetchAndFilterExpenseData() async {
     try {
       final data = await fetchAllExpenseData();
       List<Map<String, dynamic>> filteredData = [];
       
-      // Filter berdasarkan userId
       for (var transaction in data) {
         if (transaction['userId'] == id) {
           filteredData.add(transaction);
@@ -100,7 +95,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // API untuk mengambil data income
   Future<List<dynamic>> fetchAllIncomeData() async {
     const url = 'https://6718f6bc7fc4c5ff8f4be207.mockapi.io/api/v1/income';
     try {
@@ -116,7 +110,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // API untuk mengambil data expense
   Future<List<dynamic>> fetchAllExpenseData() async {
     const url = 'https://6784c7481ec630ca33a595ad.mockapi.io/expense';
     try {
@@ -132,22 +125,66 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Fungsi untuk menambahkan transaksi baru
-  void addTransaction(String title, int amount, bool isIncome) {
-    setState(() {
-      final newTransaction = {
-        'title': title,
-        'date': DateTime.now().toIso8601String(),
-        'amount': amount,
-        'userId': id,
-      };
+  Future<void> addTransaction(String title, int amount, bool isIncome) async {
+    final newTransaction = {
+      'title': title,
+      'date': DateTime.now().toIso8601String(),
+      'amount': amount,
+      'userId': id,
+    };
+
+    try {
       if (isIncome) {
-        incomeTransactions.add(newTransaction);
+        await postIncomeData(newTransaction);
       } else {
-        expenseTransactions.add(newTransaction);
+        await postExpenseData(newTransaction);
       }
-      calculateTotals();
-    });
+
+      setState(() {
+        if (isIncome) {
+          incomeTransactions.add(newTransaction);
+        } else {
+          expenseTransactions.add(newTransaction);
+        }
+        calculateTotals();
+      });
+    } catch (e) {
+      print("Error posting transaction: $e");
+    }
+  }
+
+  Future<void> postIncomeData(Map<String, dynamic> transaction) async {
+    const url = 'https://6718f6bc7fc4c5ff8f4be207.mockapi.io/api/v1/income';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(transaction),
+      );
+      if (response.statusCode == 201) {
+      print('Data berhasil dikirim: ${response.body}');
+    } else {
+      print('Gagal mengirim data: ${response.statusCode}');
+    }
+    } catch (e) {
+      throw Exception('Error posting income: $e');
+    }
+  }
+
+  Future<void> postExpenseData(Map<String, dynamic> transaction) async {
+    const url = 'https://6784c7481ec630ca33a595ad.mockapi.io/expense';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(transaction),
+      );
+      if (response.statusCode != 201) {
+        throw Exception('Failed to post expense data');
+      }
+    } catch (e) {
+      throw Exception('Error posting expense: $e');
+    }
   }
 
   @override
@@ -338,7 +375,6 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Trigger modal untuk menambah transaksi
           showDialog(
             context: context,
             builder: (ctx) {
@@ -355,16 +391,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Convert Unix timestamp to DateTime
   Widget recentTransactionItem(
       String title, dynamic date, int amount, bool isIncome) {
 
-    // Cek apakah date adalah string atau timestamp
     DateTime transactionDate;
     if (date is String) {
-      transactionDate = convertStringToDate(date);  // Mengonversi string menjadi DateTime
+      transactionDate = convertStringToDate(date); 
     } else {
-      transactionDate = DateTime.fromMillisecondsSinceEpoch(date); // Jika sudah dalam bentuk timestamp
+      transactionDate = DateTime.fromMillisecondsSinceEpoch(date);
     }
 
     String formattedDate = DateFormat('MMMM d, yyyy').format(transactionDate);
@@ -393,7 +427,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Dialog untuk menambah transaksi
 class AddTransactionDialog extends StatefulWidget {
   final bool isIncomeSelected;
   final Function(String, int, bool) onAddTransaction;
@@ -413,16 +446,19 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _amountController = TextEditingController();
 
   void _submit() {
-    final title = _titleController.text;
-    final amount = int.tryParse(_amountController.text);
+  final title = _titleController.text;
+  final amount = int.tryParse(_amountController.text);
 
-    if (title.isEmpty || amount == null) {
-      return; // Validasi input
-    }
-
-    widget.onAddTransaction(title, amount, widget.isIncomeSelected);
-    Navigator.of(context).pop();
+  if (title.isEmpty || amount == null) {
+    return;
   }
+
+  print('Tombol Add ditekan: title=$title, amount=$amount, isIncome=${widget.isIncomeSelected}');
+  
+  widget.onAddTransaction(title, amount, widget.isIncomeSelected);
+
+  Navigator.of(context).pop();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -445,10 +481,12 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
           child: Text('Cancel'),
         ),
-        TextButton(
+        ElevatedButton(
           onPressed: _submit,
           child: Text('Add'),
         ),
