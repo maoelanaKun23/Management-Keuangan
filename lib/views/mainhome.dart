@@ -86,7 +86,6 @@ class _NavigationExampleState extends State<NavigationExample> {
         ],
       ),
       body: <Widget>[
-        // Halaman Home
         Card(
           shadowColor: Colors.transparent,
           margin: const EdgeInsets.all(0.0),
@@ -105,7 +104,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         Card(
           shadowColor: Colors.transparent,
           margin: const EdgeInsets.all(0.0),
-          child: Homeviews(),
+          child: HomeViews(userData: widget.userData),
         ),
       ][currentPageIndex],
     );

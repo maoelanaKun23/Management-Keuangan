@@ -2,9 +2,30 @@ import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
 import '../component/modallogout.dart';
 
-class Homeviews extends StatelessWidget {
+class HomeViews extends StatefulWidget {
+  final Map<String, dynamic> userData;
+
+  const HomeViews({super.key, required this.userData});
+
+  @override
+  _HomeViewsState createState() => _HomeViewsState();
+}
+
+class _HomeViewsState extends State<HomeViews> {
+  late String name;
+  late String jenis_kelamin;
+  late String nomor_telepon;
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    name = widget.userData['name'];
+    jenis_kelamin = widget.userData['jenis_kelamin'];
+    nomor_telepon = widget.userData['nomor_telepon'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +91,8 @@ class Homeviews extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const Text(
-                                'Yusuf Maulana',
+                              Text(
+                                name,
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -95,8 +116,8 @@ class Homeviews extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const Text(
-                                'Male',
+                              Text(
+                                jenis_kelamin,
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -120,8 +141,8 @@ class Homeviews extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const Text(
-                                '081314156789',
+                              Text(
+                                nomor_telepon,
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -138,9 +159,8 @@ class Homeviews extends StatelessWidget {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
                                       side: BorderSide(
-                                        color: Color(
-                                            0xFF2499C0), // Warna biru untuk border
-                                        width: 2, // Ketebalan border
+                                        color: Color(0xFF2499C0),
+                                        width: 2,
                                       ),
                                     ),
                                     padding: const EdgeInsets.symmetric(
@@ -179,8 +199,7 @@ class Homeviews extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(
-                                          0xFF2499C0),
+                                      color: Color(0xFF2499C0),
                                     ),
                                   ),
                                 ),

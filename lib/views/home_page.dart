@@ -445,8 +445,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       return;
     }
 
-    // print('Tombol Add ditekan: title=$title, amount=$amount, isIncome=${widget.isIncomeSelected}');
-
     widget.onAddTransaction(title, amount, widget.isIncomeSelected);
 
     Navigator.of(context).pop();
