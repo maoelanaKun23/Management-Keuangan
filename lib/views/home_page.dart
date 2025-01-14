@@ -52,7 +52,6 @@ class _HomePageState extends State<HomePage> {
     try {
       return DateFormat('MMMM dd, yyyy').parse(dateString);
     } catch (e) {
-      print("Error parsing date: $e");
       return DateTime.now();
     }
   }
@@ -61,16 +60,16 @@ class _HomePageState extends State<HomePage> {
     try {
       final data = await fetchAllIncomeData();
       List<Map<String, dynamic>> filteredData = [];
-      
+
       for (var transaction in data) {
         if (transaction['userId'] == id) {
           filteredData.add(transaction);
         }
       }
-      
       setState(() {
         incomeTransactions = filteredData;
       });
+      calculateTotals();
     } catch (e) {
       print("Error fetching and filtering income data: $e");
     }
@@ -80,16 +79,16 @@ class _HomePageState extends State<HomePage> {
     try {
       final data = await fetchAllExpenseData();
       List<Map<String, dynamic>> filteredData = [];
-      
+
       for (var transaction in data) {
         if (transaction['userId'] == id) {
           filteredData.add(transaction);
         }
       }
-      
       setState(() {
         expenseTransactions = filteredData;
       });
+      calculateTotals();
     } catch (e) {
       print("Error fetching and filtering expense data: $e");
     }
@@ -100,7 +99,6 @@ class _HomePageState extends State<HomePage> {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        print(response.body);
         return json.decode(response.body);
       } else {
         throw Exception('Failed to load income data');
@@ -115,7 +113,6 @@ class _HomePageState extends State<HomePage> {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        print(response.body);
         return json.decode(response.body);
       } else {
         throw Exception('Failed to load expense data');
@@ -134,6 +131,8 @@ class _HomePageState extends State<HomePage> {
     };
 
     try {
+      calculateTotals();
+
       if (isIncome) {
         await postIncomeData(newTransaction);
       } else {
@@ -161,11 +160,6 @@ class _HomePageState extends State<HomePage> {
         headers: {"Content-Type": "application/json"},
         body: json.encode(transaction),
       );
-      if (response.statusCode == 201) {
-      print('Data berhasil dikirim: ${response.body}');
-    } else {
-      print('Gagal mengirim data: ${response.statusCode}');
-    }
     } catch (e) {
       throw Exception('Error posting income: $e');
     }
@@ -329,9 +323,8 @@ class _HomePageState extends State<HomePage> {
                     margin: EdgeInsets.symmetric(horizontal: 16),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      formatRupiah(isIncomeSelected
-                          ? totalIncome
-                          : totalExpense),
+                      formatRupiah(
+                          isIncomeSelected ? totalIncome : totalExpense),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -393,10 +386,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget recentTransactionItem(
       String title, dynamic date, int amount, bool isIncome) {
-
     DateTime transactionDate;
     if (date is String) {
-      transactionDate = convertStringToDate(date); 
+      transactionDate = convertStringToDate(date);
     } else {
       transactionDate = DateTime.fromMillisecondsSinceEpoch(date);
     }
@@ -446,19 +438,19 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _amountController = TextEditingController();
 
   void _submit() {
-  final title = _titleController.text;
-  final amount = int.tryParse(_amountController.text);
+    final title = _titleController.text;
+    final amount = int.tryParse(_amountController.text);
 
-  if (title.isEmpty || amount == null) {
-    return;
+    if (title.isEmpty || amount == null) {
+      return;
+    }
+
+    // print('Tombol Add ditekan: title=$title, amount=$amount, isIncome=${widget.isIncomeSelected}');
+
+    widget.onAddTransaction(title, amount, widget.isIncomeSelected);
+
+    Navigator.of(context).pop();
   }
-
-  print('Tombol Add ditekan: title=$title, amount=$amount, isIncome=${widget.isIncomeSelected}');
-  
-  widget.onAddTransaction(title, amount, widget.isIncomeSelected);
-
-  Navigator.of(context).pop();
-}
 
   @override
   Widget build(BuildContext context) {
