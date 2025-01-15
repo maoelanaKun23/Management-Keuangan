@@ -94,7 +94,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         Card(
           shadowColor: Colors.transparent,
           margin: const EdgeInsets.all(0.0),
-          child: TransactionPage(),
+          child: TransactionPage(userData: widget.userData),
         ),
         Card(
           shadowColor: Colors.transparent,

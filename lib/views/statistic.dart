@@ -1,31 +1,80 @@
 import 'package:flutter/material.dart';
-import '../models/transaction.dart';
 import 'package:intl/intl.dart';
-import 'chart_statistic.dart';
-import '../models/dummyIncome.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: TransactionPage(),
-    );
-  }
-}
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'chart_statistic.dart'; // Gantikan dengan path yang sesuai
 
 class TransactionPage extends StatefulWidget {
+  final Map<String, dynamic> userData;
+
+  const TransactionPage({super.key, required this.userData});
+
   @override
   _TransactionPageState createState() => _TransactionPageState();
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  List<Map<String, dynamic>> transactions = dummyIncome;
-  String sortOrder = 'asc'; // Default sort order (ascending)
+  List<Map<String, dynamic>> transactions = [];
+  List<Map<String, dynamic>> incomeTransactions = [];
+  List<Map<String, dynamic>> expenseTransactions = [];
+  String sortOrder = 'asc';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTransactions();
+  }
+
+  Future<void> fetchTransactions() async {
+    try {
+      // Fetch data
+      final incomeData = await fetchAllIncomeData();
+      final expenseData = await fetchAllExpenseData();
+
+      // Filter data berdasarkan userId
+      final filteredIncome = incomeData
+          .where((transaction) =>
+              transaction['userId'] == widget.userData['userId'])
+          .toList();
+      final filteredExpense = expenseData
+          .where((transaction) =>
+              transaction['userId'] == widget.userData['userId'])
+          .toList();
+
+      // Update state
+      setState(() {
+        incomeTransactions = filteredIncome;
+        expenseTransactions = filteredExpense;
+        transactions = [...filteredIncome, ...filteredExpense];
+      });
+    } catch (e) {
+      print("Error fetching transactions: $e");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllIncomeData() async {
+    const url = 'https://6718f6bc7fc4c5ff8f4be207.mockapi.io/api/v1/income';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Failed to load income data');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllExpenseData() async {
+    const url = 'https://6784c7481ec630ca33a595ad.mockapi.io/expense';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Failed to load expense data');
+    }
+  }
 
   void sortTransactions() {
     setState(() {
@@ -46,7 +95,7 @@ class _TransactionPageState extends State<TransactionPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Color(0xFF2499C0),
+        backgroundColor: const Color(0xFF2499C0),
         title: const Text(
           'Statistics',
           style: TextStyle(
@@ -57,7 +106,7 @@ class _TransactionPageState extends State<TransactionPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white),
+            icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -67,7 +116,6 @@ class _TransactionPageState extends State<TransactionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Transaction statistics (dummy UI)
             Container(
               height: 300,
               decoration: BoxDecoration(
@@ -81,21 +129,23 @@ class _TransactionPageState extends State<TransactionPage> {
                 ],
               ),
               child: Center(
-                child: BarChartSample(),
+                child: BarChartSample(
+                  incomeTransactions: incomeTransactions,
+                  expenseTransactions: expenseTransactions,
+                ),
               ),
             ),
-            SizedBox(height: 16),
-            // Most Popular Transactions
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   "Most popular transaction",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 DropdownButton<String>(
                   value: sortOrder,
-                  items: [
+                  items: const [
                     DropdownMenuItem(
                       child: Text("Sort by Ascending"),
                       value: 'asc',
@@ -129,25 +179,20 @@ class _TransactionPageState extends State<TransactionPage> {
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
-                      leading: CircleAvatar(
-                        // backgroundColor: transaction['iconColor'],
-                        child: Icon(
-                          transaction['icon'],
-                          color: Colors.white,
-                        ),
-                      ),
                       title: Text(
                         transaction['title'],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       subtitle: Text(transaction['date']),
                       trailing: Text(
-                        "${formatRupiah(transaction['amount'])}",
+                        formatRupiah(transaction['amount']),
                         style: TextStyle(
-                          color: Colors.green,
+                          color: incomeTransactions.contains(transaction)
+                              ? Colors.green
+                              : Colors.red,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),

@@ -86,26 +86,25 @@ class _LineChartSample2State extends State<LineChartSample2> {
       gridData: FlGridData(show: false),
       titlesData: FlTitlesData(
         leftTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di kiri
+          sideTitles: SideTitles(showTitles: false), 
         ),
         rightTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di kanan
+          sideTitles: SideTitles(showTitles: false), 
         ),
         topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di atas
+          sideTitles: SideTitles(showTitles: false),
         ),
         bottomTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false), // Hilangkan indikator di bawah
+          sideTitles: SideTitles(showTitles: false), 
         ),
       ),
-      borderData: FlBorderData(show: false), // Hilangkan border di sekitar grafik
+      borderData: FlBorderData(show: false),
       minX: 0,
       maxX: widget.incomeTransactions.length.toDouble(),
       minY: 0,
       maxY: 10000000,
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
-          // tooltipBgColor: Colors.blueAccent.withOpacity(0.7),
           tooltipRoundedRadius: 8,
           fitInsideHorizontally: true,
           fitInsideVertically: true,
