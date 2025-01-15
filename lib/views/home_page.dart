@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'chart_home.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'transaction_detail.dart';
+import 'chart_home.dart';
 
 class HomePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -128,25 +129,25 @@ class _HomePageState extends State<HomePage> {
       'date': DateTime.now().toIso8601String(),
       'amount': amount,
       'userId': id,
+      'type': isIncome ? "income" : "expense"
     };
 
     try {
-      calculateTotals();
-
       if (isIncome) {
         await postIncomeData(newTransaction);
       } else {
         await postExpenseData(newTransaction);
       }
 
-      setState(() {
-        if (isIncome) {
-          incomeTransactions.add(newTransaction);
-        } else {
-          expenseTransactions.add(newTransaction);
-        }
-        calculateTotals();
-      });
+      // Fetch data kembali setelah transaksi ditambahkan
+      if (isIncome) {
+        await fetchAndFilterIncomeData();
+      } else {
+        await fetchAndFilterExpenseData();
+      }
+
+      // Hitung ulang total setelah data terbaru diambil
+      calculateTotals();
     } catch (e) {
       print("Error posting transaction: $e");
     }
@@ -179,6 +180,52 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       throw Exception('Error posting expense: $e');
     }
+  }
+
+  void _updateTransaction(Map<String, dynamic> updatedTransaction) {
+    setState(() {
+      if (updatedTransaction['type'] == 'income') {
+        incomeTransactions = incomeTransactions.map((transaction) {
+          if (transaction['id'] == updatedTransaction['id']) {
+            return updatedTransaction;
+          }
+          return transaction;
+        }).toList();
+      } else {
+        expenseTransactions = expenseTransactions.map((transaction) {
+          if (transaction['id'] == updatedTransaction['id']) {
+            return updatedTransaction;
+          }
+          return transaction;
+        }).toList();
+      }
+
+      calculateTotals();
+    });
+  }
+
+  void _updateTransactionDelete(
+      String transactionId, String type, bool isIncome) {
+    setState(() {
+      if (type == 'income') {
+        // Hapus transaksi dari daftar income
+        incomeTransactions = incomeTransactions.where((transaction) {
+          return transaction['id'] != transactionId;
+        }).toList();
+      } else {
+        // Hapus transaksi dari daftar expense
+        expenseTransactions = expenseTransactions.where((transaction) {
+          return transaction['id'] != transactionId;
+        }).toList();
+      }
+      if (isIncome) {
+        fetchAndFilterIncomeData();
+      } else {
+        fetchAndFilterExpenseData();
+      }
+      // Hitung ulang total setelah transaksi dihapus
+      calculateTotals();
+    });
   }
 
   @override
@@ -334,10 +381,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Center(
                     child: LineChartSample2(
-                      incomeTransactions:
-                          incomeTransactions,
-                      expenseTransactions:
-                          expenseTransactions,
+                      incomeTransactions: incomeTransactions,
+                      expenseTransactions: expenseTransactions,
                     ),
                   ),
                 ],
@@ -363,11 +408,25 @@ class _HomePageState extends State<HomePage> {
                 for (var transaction in isIncomeSelected
                     ? incomeTransactions
                     : expenseTransactions)
-                  recentTransactionItem(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TransactionDetail(
+                              transaction: transaction,
+                              onTransactionUpdated: _updateTransaction,
+                              onTransactionDeleted: _updateTransactionDelete),
+                        ),
+                      );
+                    },
+                    child: recentTransactionItem(
                       transaction['title'],
                       transaction['date'],
                       transaction['amount'],
-                      isIncomeSelected),
+                      isIncomeSelected,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -397,28 +456,37 @@ class _HomePageState extends State<HomePage> {
     if (date is String) {
       transactionDate = convertStringToDate(date);
     } else {
-      transactionDate = DateTime.fromMillisecondsSinceEpoch(date);
+      transactionDate = date;
     }
-
-    String formattedDate = DateFormat('MMMM d, yyyy').format(transactionDate);
 
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.grey[200],
-          child: Icon(
-            isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-            color: isIncome ? Colors.green : Colors.red,
+        contentPadding: EdgeInsets.all(16),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        title: Text(title),
-        subtitle: Text(formattedDate),
+        subtitle: Text(
+          DateFormat('MMMM dd, yyyy').format(transactionDate),
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+        ),
         trailing: Text(
           formatRupiah(amount),
           style: TextStyle(
-            fontWeight: FontWeight.bold,
             color: isIncome ? Colors.green : Colors.red,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -426,43 +494,23 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class AddTransactionDialog extends StatefulWidget {
+class AddTransactionDialog extends StatelessWidget {
   final bool isIncomeSelected;
-  final Function(String, int, bool) onAddTransaction;
+  final Function(String title, int amount, bool isIncome) onAddTransaction;
 
-  const AddTransactionDialog({
-    super.key,
+  AddTransactionDialog({
     required this.isIncomeSelected,
     required this.onAddTransaction,
   });
 
-  @override
-  _AddTransactionDialogState createState() => _AddTransactionDialogState();
-}
-
-class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
-
-  void _submit() {
-    final title = _titleController.text;
-    final amount = int.tryParse(_amountController.text);
-
-    if (title.isEmpty || amount == null) {
-      return;
-    }
-
-    widget.onAddTransaction(title, amount, widget.isIncomeSelected);
-
-    Navigator.of(context).pop();
-  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Add Transaction'),
+      title: Text(isIncomeSelected ? 'Add Income' : 'Add Expense'),
       content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
@@ -471,8 +519,8 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
           ),
           TextField(
             controller: _amountController,
-            keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: 'Amount'),
+            keyboardType: TextInputType.number,
           ),
         ],
       ),
@@ -483,8 +531,13 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
           },
           child: Text('Cancel'),
         ),
-        ElevatedButton(
-          onPressed: _submit,
+        TextButton(
+          onPressed: () {
+            final title = _titleController.text;
+            final amount = int.tryParse(_amountController.text) ?? 0;
+            onAddTransaction(title, amount, isIncomeSelected);
+            Navigator.of(context).pop();
+          },
           child: Text('Add'),
         ),
       ],

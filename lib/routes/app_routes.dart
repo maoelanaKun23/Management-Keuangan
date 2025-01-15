@@ -22,15 +22,15 @@ class AppRoutes {
         final Map<String, dynamic> userData =
             settings.arguments as Map<String, dynamic>;
         page = NavigationExample(
-            userData: userData); // Kirimkan userData ke NavigationExample
+            userData: userData);
         break;
       case homepage:
         final Map<String, dynamic> userData =
             settings.arguments as Map<String, dynamic>;
-        page = HomePage(userData: userData); // Kirimkan userData ke HomePage
+        page = HomePage(userData: userData); 
         break;
       default:
-        page = Home(); // Halaman default
+        page = Home();
     }
     return _createRouteWithLoading(page);
   }
@@ -46,12 +46,11 @@ class AppRoutes {
         );
       },
       transitionDuration: Duration(milliseconds: 1000),
-      fullscreenDialog: true, // Untuk menunjukkan halaman sebagai dialog penuh
+      fullscreenDialog: true,
     );
   }
 }
 
-// Fungsi untuk menunjukkan dialog loading
 void showLoadingDialog(BuildContext context) {
   showDialog(
     context: context,
