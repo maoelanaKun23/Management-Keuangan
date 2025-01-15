@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/dummyArtikel.dart';
-import '../models/artickel.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../models/artikel.dart';
 import '../views/artikel_detail.dart';
 
 class ArtikelPage extends StatefulWidget {
@@ -9,23 +10,45 @@ class ArtikelPage extends StatefulWidget {
 }
 
 class _ArtikelPageState extends State<ArtikelPage> {
-  List<Artikel> artikelList = dummyArtikel.map((item) {
-    return Artikel(
-      id: item['id'],
-      judulArtikel: item['judulArtikel'],
-      contentArtikel: item['contentArtikel'],
-    );
-  }).toList();
+  List<Artikel> artikelList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchArtikel();
+  }
+
+  Future<void> fetchArtikel() async {
+    final url = Uri.parse('https://6784c7481ec630ca33a595ad.mockapi.io/artikel');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          artikelList = data.map((item) => Artikel.fromJson(item)).toList();
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Color(0xFF2499C0),
-        title: Text(
-          'Artickel',
-          style: const TextStyle(
+        backgroundColor: const Color(0xFF2499C0),
+        title: const Text(
+          'Artikel',
+          style: TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -33,42 +56,46 @@ class _ArtikelPageState extends State<ArtikelPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white),
+            icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {},
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: artikelList.length,
-        itemBuilder: (context, index) {
-          return SizedBox(
-            height: 120,
-            child: Card(
-              child: ListTile(
-                title: Text(
-                  artikelList[index].judulArtikel ?? "Artikel Tidak Diketahui",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  artikelList[index].contentArtikel ?? "",
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ArtikelDetail(
-                        artikel: artikelList[index],
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : artikelList.isEmpty
+              ? const Center(child: Text('Tidak ada artikel tersedia.'))
+              : ListView.builder(
+                  itemCount: artikelList.length,
+                  itemBuilder: (context, index) {
+                    return SizedBox(
+                      height: 120,
+                      child: Card(
+                        child: ListTile(
+                          title: Text(
+                            artikelList[index].judulArtikel,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            artikelList[index].contentArtikel,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArtikelDetail(
+                                  artikel: artikelList[index],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          );
-        },
-      ),
+                    );
+                  },
+                ),
     );
   }
 }
