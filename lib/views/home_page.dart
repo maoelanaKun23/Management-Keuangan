@@ -145,8 +145,6 @@ class _HomePageState extends State<HomePage> {
       } else {
         await fetchAndFilterExpenseData();
       }
-
-      // Hitung ulang total setelah data terbaru diambil
       calculateTotals();
     } catch (e) {
       print("Error posting transaction: $e");
@@ -208,12 +206,10 @@ class _HomePageState extends State<HomePage> {
       String transactionId, String type, bool isIncome) {
     setState(() {
       if (type == 'income') {
-        // Hapus transaksi dari daftar income
         incomeTransactions = incomeTransactions.where((transaction) {
           return transaction['id'] != transactionId;
         }).toList();
       } else {
-        // Hapus transaksi dari daftar expense
         expenseTransactions = expenseTransactions.where((transaction) {
           return transaction['id'] != transactionId;
         }).toList();
@@ -223,7 +219,6 @@ class _HomePageState extends State<HomePage> {
       } else {
         fetchAndFilterExpenseData();
       }
-      // Hitung ulang total setelah transaksi dihapus
       calculateTotals();
     });
   }
